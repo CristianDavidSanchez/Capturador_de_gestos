@@ -1,0 +1,43 @@
+import pandas as pd
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+
+import tensorflow as tf
+import tensorflow.keras as keras
+from tensorflow.keras import layers
+from keras.models import Model
+from keras.callbacks import ModelCheckpoint
+from keras.layers import Input, Dense
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+from sklearn import preprocessing
+
+input_shape = (625,16)
+inputs = keras.layers.Input(input_shape)
+x = keras.layers.Conv1D(16, 250, activation='relu',input_shape=input_shape)(inputs)
+x = keras.layers.MaxPool1D(pool_size=2, strides = 2, padding = 'same')(x)
+x = keras.layers.Conv1D(16, 80, activation='relu',input_shape=input_shape)(x)
+x = keras.layers.MaxPool1D(pool_size=2, strides = 2, padding = 'same')(x)
+x = keras.layers.Flatten()(x)
+x = keras.layers.Dense(256,activation = 'relu')(x)
+x = keras.layers.Dropout(0.2)(x)
+outputs = keras.layers.Dense(units=5, activation= 'softmax')(x)
+
+model = keras.Model(inputs = inputs, outputs=outputs, name ='model_sing')
+
+model.compile(optimizer = 'adam' , loss = 'sparse_categorical_crossentropy' , metrics = ['accuracy'])
+
+model.summary()
+
+# load weights into new model
+
+model.load_weights('pesos1.h5')
+#model.load_weights("pesos1.h5")
+
+features=[]
+features= np.expand_dims(features[0],0)
+
+class_pred = model.predict(features, batch_size=32)
+class_pred = np.argmax(class_pred, axis=1)
+print(class_pred)
